@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+  <meta name="theme-color" content="#000000"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <title>F.R.I.D.A.Y — AI Assistant</title>
+  <link rel="icon" href="favicon.png"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;600&display=swap"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<!-- ══ BOOT ══════════════════════════════════════ -->
+<div id="boot-screen">
+  <div class="boot-logo">
+    <svg viewBox="0 0 100 100" class="arc-spinner"><circle cx="50" cy="50" r="44"/></svg>
+    <div class="boot-letters">F.R.I.D.A.Y</div>
+  </div>
+  <div class="boot-log" id="boot-log"></div>
+</div>
+
+<!-- ══ SETUP ═════════════════════════════════════ -->
+<div id="setup-overlay" class="hidden">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div class="modal-icon">⬡</div>
+      <h2>FRIDAY SETUP</h2>
+      <p>Initialize your personal assistant</p>
+    </div>
+    <form id="setup-form" autocomplete="off">
+      <div class="field-group">
+        <label>Your Name <span class="req">*</span></label>
+        <input type="text" name="name" placeholder="Tony Stark" required/>
+      </div>
+      <div class="field-group">
+        <label>Bio</label>
+        <input type="text" name="bio" placeholder="Genius. Billionaire. Playboy..."/>
+      </div>
+      <div class="field-group">
+        <label>City / Location <span class="req">*</span></label>
+        <input type="text" name="location" placeholder="Mumbai" required/>
+      </div>
+      <div class="field-row">
+        <div class="field-group half">
+          <label>Instagram</label>
+          <input type="text" name="instagram" placeholder="@handle"/>
+        </div>
+        <div class="field-group half">
+          <label>GitHub</label>
+          <input type="text" name="github" placeholder="username"/>
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Twitter / X</label>
+        <input type="text" name="twitter" placeholder="@handle"/>
+      </div>
+      <div class="modal-actions">
+        <button type="submit" class="btn-primary">INITIALIZE</button>
+        <button type="button" class="btn-ghost" id="skip-setup">Skip — already configured</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ══ HUD ═══════════════════════════════════════ -->
+<div id="hud" class="hidden">
+
+  <header class="hud-header">
+    <div class="brand">F.R.I.D.A.Y</div>
+    <div class="hud-stats">
+      <div class="stat-chip"><span class="stat-icon">◷</span><span id="time-display">--:--</span></div>
+      <div class="stat-chip"><span class="stat-icon">⚡</span><span id="battery-display">--</span></div>
+      <div class="stat-chip net-chip"><span class="stat-icon" id="net-icon">◉</span><span id="net-display">Online</span></div>
+    </div>
+    <span class="header-date" data-show="desktop" id="date-display-hdr" style="display:none">--</span>
+    <button class="icon-btn" id="settings-btn" aria-label="Settings">⚙</button>
+  </header>
+
+  <!-- Weather strip — mobile/tablet -->
+  <div class="weather-strip" data-show="mobile" id="weather-strip" style="display:none">
+    <span id="ws-city">--</span>
+    <img id="ws-icon" src="" alt=""/>
+    <span id="ws-temp">--°</span>
+    <span id="ws-desc">--</span>
+  </div>
+
+  <main class="hud-main">
+
+    <!-- LEFT PANEL — desktop -->
+    <aside class="panel panel-left" data-show="desktop" id="panel-left" style="display:none">
+      <div class="panel-label">ENVIRONMENT</div>
+      <div id="weather-city" class="weather-city">--</div>
+      <div id="weather-country" class="weather-country">--</div>
+      <img id="weather-icon" class="weather-icon" src="" alt=""/>
+      <div id="weather-type" class="weather-type">--</div>
+      <div id="weather-temp" class="weather-temp">--°</div>
+      <div class="weather-sub-grid">
+        <div><span class="sub-label">Feels</span><span id="weather-feels">--°</span></div>
+        <div><span class="sub-label">Min</span><span id="weather-min">--°</span></div>
+        <div><span class="sub-label">Max</span><span id="weather-max">--°</span></div>
+        <div><span class="sub-label">Humidity</span><span id="weather-hum">--%</span></div>
+      </div>
+    </aside>
+
+    <!-- CENTER — all devices -->
+    <section class="hud-center">
+
+      <div id="orb-wrap">
+        <div id="orb" class="idle" role="button" tabindex="0" aria-label="Tap to speak">
+          <div class="orb-rings">
+            <div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div>
+          </div>
+          <div class="orb-core">
+            <svg viewBox="0 0 80 80" class="orb-hex"><polygon points="40,4 76,22 76,58 40,76 4,58 4,22"/></svg>
+            <span class="orb-label">FRIDAY</span>
+          </div>
+        </div>
+        <div id="orb-status" class="orb-status">STANDBY</div>
+      </div>
+
+      <div id="visualizer" class="visualizer hidden" aria-hidden="true">
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+      </div>
+
+      <div id="transcript-box" class="transcript-box" role="log" aria-live="polite">
+        <div id="transcript-log"></div>
+      </div>
+
+      <div class="input-row">
+        <input id="text-input" type="text" placeholder="Type any command…"
+          autocomplete="off" autocorrect="off" autocapitalize="off"
+          spellcheck="false" inputmode="text" enterkeyhint="send"/>
+        <button id="text-send" class="btn-send" aria-label="Send">▶</button>
+      </div>
+
+      <!-- Scrollable chip rows -->
+      <div class="quick-chips" role="toolbar">
+        <button class="chip" data-cmd="hello friday">👋 Hello</button>
+        <button class="chip" data-cmd="what time is it">⏰ Time</button>
+        <button class="chip" data-cmd="what is today's date">📅 Date</button>
+        <button class="chip" data-cmd="what is the weather">🌤 Weather</button>
+        <button class="chip" data-cmd="tell me a joke">😄 Joke</button>
+        <button class="chip" data-cmd="motivate me">💪 Quote</button>
+        <button class="chip" data-cmd="fun fact">🧠 Fact</button>
+        <button class="chip" data-cmd="give me a riddle">🔮 Riddle</button>
+        <button class="chip" data-cmd="flip a coin">🪙 Coin</button>
+        <button class="chip" data-cmd="roll a dice">🎲 Dice</button>
+        <button class="chip" data-cmd="open youtube">▶ YouTube</button>
+        <button class="chip" data-cmd="open google">🔍 Google</button>
+        <button class="chip" data-cmd="open whatsapp">💬 WhatsApp</button>
+        <button class="chip" data-cmd="open spotify">🎵 Spotify</button>
+        <button class="chip" data-cmd="open netflix">🎬 Netflix</button>
+        <button class="chip" data-cmd="open github">💻 GitHub</button>
+        <button class="chip" data-cmd="open gmail">📧 Gmail</button>
+        <button class="chip" data-cmd="open maps">🗺 Maps</button>
+        <button class="chip" data-cmd="latest news">📰 News</button>
+        <button class="chip" data-cmd="generate a password">🔐 Password</button>
+        <button class="chip" data-cmd="show my notes">📝 Notes</button>
+        <button class="chip" data-cmd="show my shopping list">🛒 Shopping</button>
+        <button class="chip" data-cmd="magic 8 ball">🎱 8-Ball</button>
+        <button class="chip" data-cmd="what can you do">❓ Help</button>
+      </div>
+
+      <!-- Speak button — desktop only -->
+      <div class="speak-wrap">
+        <button id="speak-btn" class="speak-btn" aria-label="Activate voice">
+          🎙 &nbsp;SPEAK
+        </button>
+      </div>
+
+    </section>
+
+    <!-- RIGHT PANEL — desktop -->
+    <aside class="panel panel-right" data-show="desktop" id="panel-right" style="display:none">
+      <div class="panel-label">OPERATOR</div>
+      <div id="user-name" class="user-name">--</div>
+      <div id="user-bio" class="user-bio">--</div>
+      <div class="social-links" id="social-links"></div>
+      <div class="panel-divider"></div>
+      <div class="panel-label">100+ COMMANDS</div>
+      <div class="cmd-list">
+        <div class="cmd-item"><span class="cmd-key">🗣 CONVERSATION</span></div>
+        <div class="cmd-item"><span class="cmd-key">"hello friday"</span><span class="cmd-desc">Greet / wake</span></div>
+        <div class="cmd-item"><span class="cmd-key">"how are you"</span><span class="cmd-desc">Status check</span></div>
+        <div class="cmd-item"><span class="cmd-key">"goodbye"</span><span class="cmd-desc">Sign off</span></div>
+        <div class="cmd-item"><span class="cmd-key">"repeat that"</span><span class="cmd-desc">Say it again</span></div>
+        <div class="cmd-item"><span class="cmd-key">⏰ TIME & DATE</span></div>
+        <div class="cmd-item"><span class="cmd-key">"what time is it"</span><span class="cmd-desc">Current time</span></div>
+        <div class="cmd-item"><span class="cmd-key">"what day is it"</span><span class="cmd-desc">Weekday</span></div>
+        <div class="cmd-item"><span class="cmd-key">"what season is it"</span><span class="cmd-desc">Season</span></div>
+        <div class="cmd-item"><span class="cmd-key">"days until Christmas"</span><span class="cmd-desc">Countdown</span></div>
+        <div class="cmd-item"><span class="cmd-key">🌤 WEATHER</span></div>
+        <div class="cmd-item"><span class="cmd-key">"weather in [city]"</span><span class="cmd-desc">Any city</span></div>
+        <div class="cmd-item"><span class="cmd-key">"will it rain"</span><span class="cmd-desc">Rain check</span></div>
+        <div class="cmd-item"><span class="cmd-key">🌐 WEBSITES</span></div>
+        <div class="cmd-item"><span class="cmd-key">"open [site]"</span><span class="cmd-desc">30+ sites</span></div>
+        <div class="cmd-item"><span class="cmd-key">"search for [query]"</span><span class="cmd-desc">Google</span></div>
+        <div class="cmd-item"><span class="cmd-key">"search youtube [song]"</span><span class="cmd-desc">YouTube</span></div>
+        <div class="cmd-item"><span class="cmd-key">"search amazon [item]"</span><span class="cmd-desc">Amazon</span></div>
+        <div class="cmd-item"><span class="cmd-key">"play [song]"</span><span class="cmd-desc">YouTube music</span></div>
+        <div class="cmd-item"><span class="cmd-key">"latest news"</span><span class="cmd-desc">Google News</span></div>
+        <div class="cmd-item"><span class="cmd-key">"news about [topic]"</span><span class="cmd-desc">Topic news</span></div>
+        <div class="cmd-item"><span class="cmd-key">"wikipedia [topic]"</span><span class="cmd-desc">Wikipedia</span></div>
+        <div class="cmd-item"><span class="cmd-key">"define [word]"</span><span class="cmd-desc">Dictionary</span></div>
+        <div class="cmd-item"><span class="cmd-key">"translate [x] to [y]"</span><span class="cmd-desc">Translate</span></div>
+        <div class="cmd-item"><span class="cmd-key">🗺 NAVIGATION</span></div>
+        <div class="cmd-item"><span class="cmd-key">"directions to [place]"</span><span class="cmd-desc">Google Maps</span></div>
+        <div class="cmd-item"><span class="cmd-key">"find [place] near me"</span><span class="cmd-desc">Nearby search</span></div>
+        <div class="cmd-item"><span class="cmd-key">"map of [city]"</span><span class="cmd-desc">Show map</span></div>
+        <div class="cmd-item"><span class="cmd-key">🧮 MATHS</span></div>
+        <div class="cmd-item"><span class="cmd-key">"calculate [expr]"</span><span class="cmd-desc">Any expression</span></div>
+        <div class="cmd-item"><span class="cmd-key">"square root of [n]"</span><span class="cmd-desc">√</span></div>
+        <div class="cmd-item"><span class="cmd-key">"[n] to the power of [m]"</span><span class="cmd-desc">Powers</span></div>
+        <div class="cmd-item"><span class="cmd-key">"[n]% of [m]"</span><span class="cmd-desc">Percentage</span></div>
+        <div class="cmd-item"><span class="cmd-key">"factorial of [n]"</span><span class="cmd-desc">n!</span></div>
+        <div class="cmd-item"><span class="cmd-key">"is [n] prime"</span><span class="cmd-desc">Prime check</span></div>
+        <div class="cmd-item"><span class="cmd-key">"LCM of [a] and [b]"</span><span class="cmd-desc">LCM / GCD</span></div>
+        <div class="cmd-item"><span class="cmd-key">📐 CONVERT</span></div>
+        <div class="cmd-item"><span class="cmd-key">"convert 5 km to miles"</span><span class="cmd-desc">Length</span></div>
+        <div class="cmd-item"><span class="cmd-key">"100 celsius to fahrenheit"</span><span class="cmd-desc">Temperature</span></div>
+        <div class="cmd-item"><span class="cmd-key">"10 kg to pounds"</span><span class="cmd-desc">Weight</span></div>
+        <div class="cmd-item"><span class="cmd-key">"60 mph to kmh"</span><span class="cmd-desc">Speed</span></div>
+        <div class="cmd-item"><span class="cmd-key">❤️ HEALTH</span></div>
+        <div class="cmd-item"><span class="cmd-key">"BMI 70 kg 175 cm"</span><span class="cmd-desc">BMI calculator</span></div>
+        <div class="cmd-item"><span class="cmd-key">"15% tip on 500"</span><span class="cmd-desc">Tip calculator</span></div>
+        <div class="cmd-item"><span class="cmd-key">"calories in [food]"</span><span class="cmd-desc">Nutrition</span></div>
+        <div class="cmd-item"><span class="cmd-key">"how much water"</span><span class="cmd-desc">Water intake</span></div>
+        <div class="cmd-item"><span class="cmd-key">⏱ TIMERS & ALARMS</span></div>
+        <div class="cmd-item"><span class="cmd-key">"set timer 5 minutes"</span><span class="cmd-desc">Countdown timer</span></div>
+        <div class="cmd-item"><span class="cmd-key">"set alarm at 7am"</span><span class="cmd-desc">Alarm clock</span></div>
+        <div class="cmd-item"><span class="cmd-key">"show alarms"</span><span class="cmd-desc">List alarms</span></div>
+        <div class="cmd-item"><span class="cmd-key">"cancel alarms"</span><span class="cmd-desc">Clear alarms</span></div>
+        <div class="cmd-item"><span class="cmd-key">📝 NOTES</span></div>
+        <div class="cmd-item"><span class="cmd-key">"note that [text]"</span><span class="cmd-desc">Save note</span></div>
+        <div class="cmd-item"><span class="cmd-key">"show my notes"</span><span class="cmd-desc">Read notes</span></div>
+        <div class="cmd-item"><span class="cmd-key">"delete last note"</span><span class="cmd-desc">Remove note</span></div>
+        <div class="cmd-item"><span class="cmd-key">🛒 SHOPPING & TODO</span></div>
+        <div class="cmd-item"><span class="cmd-key">"add milk to shopping list"</span><span class="cmd-desc">Shopping</span></div>
+        <div class="cmd-item"><span class="cmd-key">"show shopping list"</span><span class="cmd-desc">View list</span></div>
+        <div class="cmd-item"><span class="cmd-key">"todo [task]"</span><span class="cmd-desc">Add task</span></div>
+        <div class="cmd-item"><span class="cmd-key">"show my tasks"</span><span class="cmd-desc">View tasks</span></div>
+        <div class="cmd-item"><span class="cmd-key">🎲 FUN & GAMES</span></div>
+        <div class="cmd-item"><span class="cmd-key">"tell me a joke"</span><span class="cmd-desc">12 jokes</span></div>
+        <div class="cmd-item"><span class="cmd-key">"motivate me"</span><span class="cmd-desc">12 quotes</span></div>
+        <div class="cmd-item"><span class="cmd-key">"fun fact"</span><span class="cmd-desc">15 facts</span></div>
+        <div class="cmd-item"><span class="cmd-key">"give me a riddle"</span><span class="cmd-desc">7 riddles</span></div>
+        <div class="cmd-item"><span class="cmd-key">"tongue twister"</span><span class="cmd-desc">6 twisters</span></div>
+        <div class="cmd-item"><span class="cmd-key">"cheer me up"</span><span class="cmd-desc">Affirmations</span></div>
+        <div class="cmd-item"><span class="cmd-key">"would you rather"</span><span class="cmd-desc">WYR game</span></div>
+        <div class="cmd-item"><span class="cmd-key">"magic 8 ball"</span><span class="cmd-desc">Fortune teller</span></div>
+        <div class="cmd-item"><span class="cmd-key">"rock paper scissors"</span><span class="cmd-desc">RPS game</span></div>
+        <div class="cmd-item"><span class="cmd-key">"guess a number"</span><span class="cmd-desc">Number game</span></div>
+        <div class="cmd-item"><span class="cmd-key">"flip a coin"</span><span class="cmd-desc">Coin toss</span></div>
+        <div class="cmd-item"><span class="cmd-key">"roll a dice"</span><span class="cmd-desc">Dice roll</span></div>
+        <div class="cmd-item"><span class="cmd-key">"roll 2d6"</span><span class="cmd-desc">Custom dice</span></div>
+        <div class="cmd-item"><span class="cmd-key">"random number"</span><span class="cmd-desc">1–100</span></div>
+        <div class="cmd-item"><span class="cmd-key">"choose [x] or [y]"</span><span class="cmd-desc">Decision maker</span></div>
+        <div class="cmd-item"><span class="cmd-key">"pick a random colour"</span><span class="cmd-desc">Random colour</span></div>
+        <div class="cmd-item"><span class="cmd-key">🔧 UTILITIES</span></div>
+        <div class="cmd-item"><span class="cmd-key">"generate password"</span><span class="cmd-desc">Random password</span></div>
+        <div class="cmd-item"><span class="cmd-key">"generate username"</span><span class="cmd-desc">Random username</span></div>
+        <div class="cmd-item"><span class="cmd-key">"born in [year]"</span><span class="cmd-desc">Age calculator</span></div>
+        <div class="cmd-item"><span class="cmd-key">"what browser am I using"</span><span class="cmd-desc">Device info</span></div>
+        <div class="cmd-item"><span class="cmd-key">"clear chat"</span><span class="cmd-desc">Clear transcript</span></div>
+        <div class="cmd-item"><span class="cmd-key">"stop"</span><span class="cmd-desc">Stop speaking</span></div>
+      </div>
+      <div class="panel-divider"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn-ghost" id="reset-btn" style="flex:1;min-height:38px;font-size:.63rem">↺ Reset</button>
+        <span id="date-display" style="font-family:var(--fhud);font-size:.5rem;color:var(--muted);align-self:center;flex:1;text-align:right">--</span>
+      </div>
+    </aside>
+
+  </main>
+
+  <footer class="hud-footer">
+    <!-- Mobile nav -->
+    <nav class="mobile-nav" data-show="mobile" id="mobile-nav" style="display:none" aria-label="Navigation">
+      <button class="nav-btn" id="nav-home" aria-label="Home">
+        <span class="nav-icon">⬡</span><span class="nav-label">HOME</span>
+      </button>
+      <button class="nav-btn mic-nav-btn" id="mic-btn" aria-label="Speak">
+        <span class="mic-icon">🎙</span><span class="nav-label">SPEAK</span>
+      </button>
+      <button class="nav-btn" id="nav-menu" aria-label="Menu">
+        <span class="nav-icon">☰</span><span class="nav-label">MENU</span>
+      </button>
+    </nav>
+    <!-- Desktop footer -->
+    <div class="desktop-footer" data-show="desktop" id="desktop-footer" style="display:none">
+      <div class="footer-l">F.R.I.D.A.Y &nbsp;v6.0 · 100+ Commands</div>
+      <div class="footer-r">
+        <button class="icon-btn sm" id="reset-btn-d">↺ Reset</button>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- MOBILE MENU -->
+<div id="mobile-menu" class="mobile-menu hidden" role="dialog" aria-modal="true">
+  <div class="menu-handle"></div>
+  <div class="menu-content">
+    <div class="menu-section">
+      <div class="panel-label">OPERATOR</div>
+      <div id="mob-user-name" class="user-name">--</div>
+      <div id="mob-user-bio" class="user-bio">--</div>
+      <div class="social-links" id="mob-social-links"></div>
+    </div>
+    <div class="menu-section">
+      <div class="panel-label">WEATHER</div>
+      <div class="mob-weather-grid">
+        <div class="mob-w-item"><span class="sub-label">City</span><span id="mob-city">--</span></div>
+        <div class="mob-w-item"><span class="sub-label">Temp</span><span id="mob-temp">--°</span></div>
+        <div class="mob-w-item"><span class="sub-label">Feels</span><span id="mob-feels">--°</span></div>
+        <div class="mob-w-item"><span class="sub-label">Humidity</span><span id="mob-hum">--%</span></div>
+      </div>
+    </div>
+    <div class="menu-section">
+      <div class="panel-label">KEY COMMANDS</div>
+      <div class="cmd-list">
+        <div class="cmd-item"><span class="cmd-key">"hello friday"</span><span class="cmd-desc">Greet</span></div>
+        <div class="cmd-item"><span class="cmd-key">"open [site]"</span><span class="cmd-desc">30+ sites</span></div>
+        <div class="cmd-item"><span class="cmd-key">"search for [query]"</span><span class="cmd-desc">Google</span></div>
+        <div class="cmd-item"><span class="cmd-key">"play [song]"</span><span class="cmd-desc">YouTube</span></div>
+        <div class="cmd-item"><span class="cmd-key">"weather in [city]"</span><span class="cmd-desc">Weather</span></div>
+        <div class="cmd-item"><span class="cmd-key">"calculate [expr]"</span><span class="cmd-desc">Maths</span></div>
+        <div class="cmd-item"><span class="cmd-key">"set timer [N] min"</span><span class="cmd-desc">Timer</span></div>
+        <div class="cmd-item"><span class="cmd-key">"set alarm at [time]"</span><span class="cmd-desc">Alarm</span></div>
+        <div class="cmd-item"><span class="cmd-key">"note that [text]"</span><span class="cmd-desc">Save note</span></div>
+        <div class="cmd-item"><span class="cmd-key">"add [item] to shopping"</span><span class="cmd-desc">Shopping list</span></div>
+        <div class="cmd-item"><span class="cmd-key">"convert 5 km to miles"</span><span class="cmd-desc">Unit convert</span></div>
+        <div class="cmd-item"><span class="cmd-key">"generate password"</span><span class="cmd-desc">Password</span></div>
+        <div class="cmd-item"><span class="cmd-key">"flip a coin"</span><span class="cmd-desc">Coin toss</span></div>
+        <div class="cmd-item"><span class="cmd-key">"roll a dice"</span><span class="cmd-desc">Dice</span></div>
+        <div class="cmd-item"><span class="cmd-key">"magic 8 ball"</span><span class="cmd-desc">Fortune</span></div>
+        <div class="cmd-item"><span class="cmd-key">"fun fact"</span><span class="cmd-desc">Random fact</span></div>
+        <div class="cmd-item"><span class="cmd-key">"motivate me"</span><span class="cmd-desc">Quote</span></div>
+        <div class="cmd-item"><span class="cmd-key">"BMI 70 kg 175 cm"</span><span class="cmd-desc">BMI</span></div>
+        <div class="cmd-item"><span class="cmd-key">"what can you do"</span><span class="cmd-desc">All commands</span></div>
+        <div class="cmd-item"><span class="cmd-key">"stop"</span><span class="cmd-desc">Stop speaking</span></div>
+      </div>
+    </div>
+    <button class="btn-ghost full" id="mob-reset">↺ Reset Profile</button>
+    <div style="height:10px"></div>
+  </div>
+</div>
+<div id="menu-backdrop" class="menu-backdrop hidden"></div>
+
+<div id="timer-toast" class="timer-toast hidden">
+  <span>⏱ Timer complete!</span>
+  <button onclick="document.getElementById('timer-toast').classList.add('hidden')">✕</button>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
